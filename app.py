@@ -5,6 +5,11 @@ import io
 import pandas as pd
 import time
 import matplotlib.pyplot as plt
+import tempfile
+import pythoncom
+import win32com.client  # Windows only
+
+
 
 # Google Apps Script Web App URL
 SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwHpGYeL_jMR45vvor9l3mXYawzE3BhF8vrNtIWvMeMtqSzMhhSN-pOquxyFVTHvcrnfA/exec"
@@ -38,6 +43,22 @@ def generate_pdf_from_df(df):
     plt.close(fig)
     pdf_buffer.seek(0)
     return pdf_buffer
+
+def convert_excel_to_pdf(excel_path, output_pdf_path):
+    pythoncom.CoInitialize()
+    excel_app = win32com.client.Dispatch("Excel.Application")
+    excel_app.Visible = False
+    wb = excel_app.Workbooks.Open(excel_path)
+    try:
+        ws = wb.Worksheets(1)  # Convert only first worksheet
+        ws.PageSetup.Zoom = False
+        ws.PageSetup.FitToPagesWide = 1
+        ws.PageSetup.FitToPagesTall = 1
+        wb.ExportAsFixedFormat(0, output_pdf_path)
+    finally:
+        wb.Close(False)
+        excel_app.Quit()
+        pythoncom.CoUninitialize()
 
 # Main logic
 if uploaded_file:
@@ -73,12 +94,22 @@ if uploaded_file:
                     st.dataframe(df)
 
                     # Create PDF that looks like Excel
-                    pdf_file = generate_pdf_from_df(df)
+                    with tempfile.NamedTemporaryFile(delete=False, suffix=".xlsx") as tmp_excel:
+                        tmp_excel.write(file_bytes)
+                        excel_path = tmp_excel.name
+
+                    # Step 6: Convert Excel to PDF
+                    pdf_path = excel_path.replace(".xlsx", ".pdf")
+                    convert_excel_to_pdf(excel_path, pdf_path)
+
+                    # Step 7: Serve PDF download
+                    with open(pdf_path, "rb") as f:
+                        pdf_data = f.read()
 
                     st.download_button(
-                        label="📄 Download PDF",
-                        data=pdf_file,
-                        file_name="excel_output.pdf",
+                        label="📄 Download PDF (Exact Format)",
+                        data=pdf_data,
+                        file_name="ocr_output.pdf",
                         mime="application/pdf"
                     )
                 else:
