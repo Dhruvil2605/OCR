@@ -16,11 +16,15 @@ SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwHpGYeL_jMR45vvor9l3mXYaw
 
 st.markdown("""
     <style>
-    a[href^="https://github.com"] {
+    [data-testid="stToolbar"] a[href^="https://github.com"] {
+        display: none !important;
+    }
+    header [data-testid="stMarkdownContainer"] + div a {
         display: none !important;
     }
     </style>
 """, unsafe_allow_html=True)
+
 
 # File upload
 uploaded_file = st.file_uploader("Upload Image", type=["jpg", "jpeg", "png"])
