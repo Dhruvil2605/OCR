@@ -3,3 +3,4 @@ requests
 pandas
 matplotlib
 pywin32
+pythoncom
