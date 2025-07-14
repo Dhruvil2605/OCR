@@ -10,9 +10,9 @@ import matplotlib.pyplot as plt
 SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwHpGYeL_jMR45vvor9l3mXYawzE3BhF8vrNtIWvMeMtqSzMhhSN-pOquxyFVTHvcrnfA/exec"
 
 
-# Page setup
+# Page setupg
 # st.set_page_config(page_title="OCR Project", layout="centered")
-st.title("📤 OCR Project")
+# st.title("📤 OCR Project")
 
 st.markdown("""
     <style>
