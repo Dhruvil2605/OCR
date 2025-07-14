@@ -11,19 +11,8 @@ SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwHpGYeL_jMR45vvor9l3mXYaw
 
 
 # Page setupg
-# st.set_page_config(page_title="OCR Project", layout="centered")
-# st.title("📤 OCR Project")
-
-st.markdown("""
-    <style>
-    [data-testid="stToolbar"] a[href^="https://github.com"] {
-        display: none !important;
-    }
-    header [data-testid="stMarkdownContainer"] + div a {
-        display: none !important;
-    }
-    </style>
-""", unsafe_allow_html=True)
+st.set_page_config(page_title="OCR Project", layout="centered")
+st.title("📤 OCR Project")
 
 
 # File upload
