@@ -11,7 +11,7 @@ SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwHpGYeL_jMR45vvor9l3mXYaw
 
 
 # Page setup
-st.set_page_config(page_title="OCR Project", layout="centered")
+# st.set_page_config(page_title="OCR Project", layout="centered")
 st.title("📤 OCR Project")
 
 st.markdown("""
