@@ -1,6 +1,5 @@
 streamlit
-requests
 pandas
+requests
+openpyxl
 matplotlib
-pywin32
-pythoncom
