@@ -9,9 +9,18 @@ import matplotlib.pyplot as plt
 # Google Apps Script Web App URL
 SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwHpGYeL_jMR45vvor9l3mXYawzE3BhF8vrNtIWvMeMtqSzMhhSN-pOquxyFVTHvcrnfA/exec"
 
+
 # Page setup
 st.set_page_config(page_title="OCR Project", layout="centered")
 st.title("📤 OCR Project")
+
+st.markdown("""
+    <style>
+    a[href^="https://github.com"] {
+        display: none !important;
+    }
+    </style>
+""", unsafe_allow_html=True)
 
 # File upload
 uploaded_file = st.file_uploader("Upload Image", type=["jpg", "jpeg", "png"])
