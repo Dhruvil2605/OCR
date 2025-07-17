@@ -68,9 +68,9 @@ if uploaded_file:
             if res.status_code == 200 and res.json().get("success"):
                 st.success("✅ File uploaded successfully")
                 st.info("⏳ File is been processed please wait for some time.")
-                time.sleep(180)
+                time.sleep(360)
                 st.info("⏳ This process will take time to generate exact template... Please wait...")
-                time.sleep(120)
+                time.sleep(240)
 
                 # Fetch Excel
                 fetch = requests.get(SCRIPT_URL)
