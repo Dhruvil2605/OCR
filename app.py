@@ -2,64 +2,33 @@ import streamlit as st
 import requests
 import base64
 import io
-import pandas as pd
 import time
-import matplotlib.pyplot as plt
 
-# Google Apps Script Web App URL
-SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwHpGYeL_jMR45vvor9l3mXYawzE3BhF8vrNtIWvMeMtqSzMhhSN-pOquxyFVTHvcrnfA/exec"
+# Web App URL of Google Apps Script
+SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxC29yxnH1dMYEkI_CYNR-Cgr_GiEfO7KHIT9zBH_W0Gu4h5U62vMOMKmiC5u45YIDa/exec"
 
-
-# Page setupg
-st.set_page_config(page_title="OCR Project", layout="centered")
+st.set_page_config(page_title="OCR Portal", layout="centered")
 st.title("📤 OCR Project")
 
+# Hide GitHub and menu
 st.markdown("""
     <style>
-    [data-testid="stToolbar"] a[href^="https://github.com"] {
-        display: none !important;
-    }
+    [data-testid="stToolbar"] a[href^="https://github.com"],
     header [data-testid="stMarkdownContainer"] + div a {
         display: none !important;
     }
     </style>
 """, unsafe_allow_html=True)
 
-
-# File upload
 uploaded_file = st.file_uploader("Upload Image", type=["jpg", "jpeg", "png"])
 
-# Generate a PDF that looks like the Excel sheet
-def generate_pdf_from_df(df):
-    fig, ax = plt.subplots(figsize=(len(df.columns) * 1.2, len(df) * 0.5 + 1))
-    ax.axis('off')
-
-    table = ax.table(cellText=df.values,
-                     colLabels=df.columns,
-                     cellLoc='center',
-                     loc='center',
-                     edges='horizontal')
-
-    table.auto_set_font_size(False)
-    table.set_fontsize(8)
-    table.scale(1.2, 1.2)
-
-    pdf_buffer = io.BytesIO()
-    plt.savefig(pdf_buffer, format='pdf', bbox_inches='tight')
-    plt.close(fig)
-    pdf_buffer.seek(0)
-    return pdf_buffer
-
-# Main logic
 if uploaded_file:
     st.success(f"✅ File selected: {uploaded_file.name}")
-    if st.button("Upload File"):
+    if st.button("📤 Upload Image"):
         try:
-            # Encode image
             file_bytes = uploaded_file.read()
             encoded = base64.b64encode(file_bytes).decode("utf-8")
 
-            # Upload to Apps Script
             res = requests.post(SCRIPT_URL, json={
                 "filename": uploaded_file.name,
                 "file": encoded
@@ -72,29 +41,28 @@ if uploaded_file:
                 st.info("⏳ This process will take time to generate exact template... Please wait...")
                 time.sleep(240)
 
-                # Fetch Excel
-                fetch = requests.get(SCRIPT_URL)
-                result = fetch.json()
+                st.info("⏳ Fetching PDF now...")
+                try:
+                    fetch_res = requests.get(SCRIPT_URL)
+                    result = fetch_res.json()
 
-                if result.get("success"):
-                    st.info(f"📄 Excel: {result['filename']}")
-                    file_bytes = base64.b64decode(result["file"])
-                    df = pd.read_excel(io.BytesIO(file_bytes))
-                    st.success("✅ Excel fetched successfully!")
-                    st.dataframe(df)
+                    if result.get("success") and result.get("file"):
+                        st.success(f"✅ PDF '{result['filename']}' fetched.")
 
-                    # Create PDF that looks like Excel
-                    pdf_file = generate_pdf_from_df(df)
+                        pdf_bytes = base64.b64decode(result["file"])
+                        pdf_buffer = io.BytesIO(pdf_bytes)
 
-                    st.download_button(
-                        label="📄 Download PDF",
-                        data=pdf_file,
-                        file_name="excel_output.pdf",
-                        mime="application/pdf"
-                    )
-                else:
-                    st.warning("⚠️ No Excel file found.")
+                        st.download_button(
+                            label="📄 Download PDF",
+                            data=pdf_buffer,
+                            file_name=result["filename"],
+                            mime="application/pdf"
+                        )
+                    else:
+                        st.warning("⚠️ No PDF found or failed to fetch.")
+                except Exception as e:
+                    st.error(f"❌ Error while fetching PDF: {e}")
             else:
                 st.error(f"❌ Upload failed: {res.json().get('error')}")
         except Exception as e:
-            st.error(f"❌ Error: {e}")
+            st.error(f"❌ Upload Error: {e}")
