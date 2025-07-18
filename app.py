@@ -22,6 +22,24 @@ st.markdown("""
 
 uploaded_file = st.file_uploader("Upload Image", type=["jpg", "jpeg", "png"])
 
+def check_file():
+    fetch_res = requests.get(SCRIPT_URL)
+    result = fetch_res.json()
+
+    if result.get("success") and result.get("file"):
+        st.success(f"✅ PDF '{result['filename']}' fetched.")
+        pdf_bytes = base64.b64decode(result["file"])
+        pdf_buffer = io.BytesIO(pdf_bytes)
+        st.download_button(
+            label="📄 Download PDF",
+            data=pdf_buffer,
+            file_name=result["filename"],
+            mime="application/pdf",
+            key=f"download-{result['filename']}-{time.time()}"
+        )
+        return True
+    return False
+
 if uploaded_file:
     st.success(f"✅ File selected: {uploaded_file.name}")
     if st.button("📤 Upload Image"):
@@ -37,32 +55,17 @@ if uploaded_file:
             if res.status_code == 200 and res.json().get("success"):
                 st.success("✅ File uploaded successfully")
                 st.info("⏳ File is been processed please wait for some time.")
-                time.sleep(360)
-                st.info("⏳ This process will take time to generate exact template... Please wait...")
-                time.sleep(240)
 
-                st.info("⏳ Fetching PDF now...")
                 try:
-                    fetch_res = requests.get(SCRIPT_URL)
-                    result = fetch_res.json()
+                    while True:
+                        if check_file():
+                            break
+                        time.sleep(10)
 
-                    if result.get("success") and result.get("file"):
-                        st.success(f"✅ PDF '{result['filename']}' fetched.")
-
-                        pdf_bytes = base64.b64decode(result["file"])
-                        pdf_buffer = io.BytesIO(pdf_bytes)
-
-                        st.download_button(
-                            label="📄 Download PDF",
-                            data=pdf_buffer,
-                            file_name=result["filename"],
-                            mime="application/pdf"
-                        )
-                    else:
-                        st.warning("⚠️ No PDF found or failed to fetch.")
                 except Exception as e:
                     st.error(f"❌ Error while fetching PDF: {e}")
             else:
                 st.error(f"❌ Upload failed: {res.json().get('error')}")
         except Exception as e:
             st.error(f"❌ Upload Error: {e}")
+
