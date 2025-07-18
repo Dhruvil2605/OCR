@@ -37,9 +37,9 @@ if uploaded_file:
             if res.status_code == 200 and res.json().get("success"):
                 st.success("✅ File uploaded successfully")
                 st.info("⏳ File is been processed please wait for some time.")
-                time.sleep(360)
+                time.sleep(0)
                 st.info("⏳ This process will take time to generate exact template... Please wait...")
-                time.sleep(240)
+                time.sleep(20)
 
                 st.info("⏳ Fetching PDF now...")
                 try:
